@@ -22,7 +22,7 @@ Installation
 1. Please add below user parameteres on monitored mail Postfix server:
 ```
    UserParameter=queue.status,postqueue -p | grep -v "^[^0-9A-Z]\|^$" | wc -l
-   UserParameter=queue.block,postqueue -p | grep blocked | wc -l
+   UserParameter=queue.block,postqueue -p | grep -e blocked -e blacklisted | wc -l
 ```
 2. Associate **ZBX-POSTFIX-SPAM-QUEUE-CHECKING** template to the host.
 

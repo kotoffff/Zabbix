@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>3.4</version>
-    <date>2019-01-28T11:58:08Z</date>
+    <date>2019-01-28T15:25:45Z</date>
     <groups>
         <group>
             <name>Linux servers</name>
@@ -17,7 +17,7 @@
 &#13;
 Please add below user parameteres on mail Postfix server:&#13;
 UserParameter=queue.status,postqueue -p | grep -v &quot;^[^0-9A-Z]\|^$&quot; | wc -l&#13;
-UserParameter=queue.block,postqueue -p | grep blocked | wc -l</description>
+UserParameter=queue.block,postqueue -p | grep -e blocked -e blacklisted | wc -l</description>
             <groups>
                 <group>
                     <name>Linux servers</name>
