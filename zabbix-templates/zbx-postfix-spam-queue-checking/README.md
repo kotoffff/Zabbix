@@ -2,8 +2,8 @@ ZBX-POSTFIX-SPAM-QUEUE-CHECKING
 ===========
 
 This template for Postfix queue checking: 
- * 1. Number of letters 
- * 2.'blocked' letters (SPAM checking)
+-  Number of letters 
+-  'blocked' letters (SPAM checking)
 
 Items
 -----
@@ -19,9 +19,11 @@ Triggers
 
 Installation
 ------------
-1. Please add below user parameteres on monitoring mail Postfix server:
+1. Please add below user parameteres on monitored mail Postfix server:
+```
    UserParameter=queue.status,postqueue -p | grep -v "^[^0-9A-Z]\|^$" | wc -l
    UserParameter=queue.block,postqueue -p | grep blocked | wc -l
+```
 2. Associate **ZBX-POSTFIX-SPAM-QUEUE-CHECKING** template to the host.
 
 
