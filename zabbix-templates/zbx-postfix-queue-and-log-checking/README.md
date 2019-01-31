@@ -27,7 +27,7 @@ Installation
 1. Please add below user parameteres on monitored mail Postfix server:
 ```
    UserParameter=queue.status,postqueue -p | grep -v "^[^0-9A-Z]\|^$" | wc -l
-   UserParameter=queue.block,postqueue -p | grep -e blocked -e blacklisted | wc -l
+   UserParameter=queue.blocked,postqueue -p | grep -e blocked -e blacklisted | wc -l
    UserParameter=maillog.blocked,journalctl -u postfix -S "$(date -d "-1 hour" +%Y"-"%m"-"%d" "%T)" | grep  -iw -e  blacklisted -e blocked | wc -l
 ```
 2. Please add Zabbix user to systemd-journal group:
