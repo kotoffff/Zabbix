@@ -1,21 +1,26 @@
-ZBX-POSTFIX-SPAM-QUEUE-CHECKING
+ZBX-POSTFIX-QUEUE-AND-LOG-SPAM-CHECKING
 ===========
 
 This template for Postfix queue checking: 
 -  Number of letters 
 -  'blocked' letters (SPAM checking)
 
+This template for Postfix maillog checking:
+-  'blocked' letters (SPAM checking)
+
 Items
 -----
 
-  * queue.block  - number of letters in queue
-  * queue.status - number of 'blocked'(SPAM) letters in queue
+  * queue.status -  number of letters in queue
+  * queue.blocked - number of 'blocked'(SPAM) letters in queue 
+  * maillog.blocked - number of 'blocked'(SPAM) letters in maillog last hour
 
 Triggers
 --------
 
 * **[WARNING]** => too many letters in queue last 30 minutes
 * **[WARNING]** => when find 'blocked' (SPAM) letters in queue
+* **[WARNING]** => when find 'blocked' (SPAM) letters in maillog
 
 Installation
 ------------
@@ -23,13 +28,20 @@ Installation
 ```
    UserParameter=queue.status,postqueue -p | grep -v "^[^0-9A-Z]\|^$" | wc -l
    UserParameter=queue.block,postqueue -p | grep -e blocked -e blacklisted | wc -l
+   UserParameter=maillog.blocked,journalctl -u postfix -S "$(date -d "-1 hour" +%Y"-"%m"-"%d" "%T)" | grep  -iw -e  blacklisted -e blocked | wc -l
 ```
-2. Associate **ZBX-POSTFIX-SPAM-QUEUE-CHECKING** template to the host.
+2. Please add Zabbix user to systemd-journal group:
+```
+  usermod -G systemd-journal zabbix
+```
+3. Please associate **ZBX-POSTFIX-QUEUE-AND-LOG-SPAM-CHECKING** template to the host.
 
 
 ### Requirements
 
 This template was tested for Zabbix 3.4 and higher.
+This template was tested for Posfix 2.10 and higher.
+This template was tested for CentOS 7.X.
 
 License
 -------

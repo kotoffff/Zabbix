@@ -6,7 +6,7 @@ A collection of Zabbix templates.
 Templates
 ---------
 
-  * [ZBX-POSTFIX-SPAM-QUEUE-CHECKING](https://github.com/kotoffff/Zabbix/tree/master/zabbix-templates/zbx-postfix-spam-queue-checking) => template for Postfix queue checking: 1. Number of letters 2.'blocked' letters (SPAM checking)
+  * [ZBX-POSTFIX-QUEUE-AND-LOG-SPAM-CHECKING](https://github.com/kotoffff/Zabbix/tree/master/zabbix-templates/zbx-postfix-queue-and-log-checking) => template for Postfix queue and log SPAM checking
 
 Requirements
 ------------

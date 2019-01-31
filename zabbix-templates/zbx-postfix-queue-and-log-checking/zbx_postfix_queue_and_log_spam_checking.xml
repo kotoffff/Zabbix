@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>3.4</version>
-    <date>2019-01-28T15:25:45Z</date>
+    <date>2019-01-31T15:30:30Z</date>
     <groups>
         <group>
             <name>Linux servers</name>
@@ -9,15 +9,22 @@
     </groups>
     <templates>
         <template>
-            <template>Template Postfix Queue Checking</template>
-            <name>Template Postfix Queue Checking</name>
+            <template>Template Postfix Queue And Log Checking</template>
+            <name>Template Postfix Queue And Log Checking</name>
             <description>This template checks Postfix queue:&#13;
 1. Number of letters in queue&#13;
 2. Checking 'blocked' letters (SPAM checking)&#13;
 &#13;
+This template checks Postfix maillog:&#13;
+1. Checking 'blocked' letters (SPAM checking)&#13;
+&#13;
 Please add below user parameteres on mail Postfix server:&#13;
 UserParameter=queue.status,postqueue -p | grep -v &quot;^[^0-9A-Z]\|^$&quot; | wc -l&#13;
-UserParameter=queue.block,postqueue -p | grep -e blocked -e blacklisted | wc -l</description>
+UserParameter=queue.block,postqueue -p | grep -e blocked -e blacklisted | wc -l&#13;
+UserParameter=maillog.block,journalctl -u postfix -S &quot;$(date -d &quot;-1 hour&quot; +%Y&quot;-&quot;%m&quot;-&quot;%d&quot; &quot;%T)&quot; | grep  -iw -e  blacklisted -e blocked | wc -l&#13;
+&#13;
+Don't forget to add zabbix user to systemd-journal group:&#13;
+usermod -G systemd-journal zabbix</description>
             <groups>
                 <group>
                     <name>Linux servers</name>
@@ -25,16 +32,62 @@ UserParameter=queue.block,postqueue -p | grep -e blocked -e blacklisted | wc -l<
             </groups>
             <applications>
                 <application>
-                    <name>Postfix_Queue</name>
+                    <name>Postfix</name>
                 </application>
             </applications>
             <items>
                 <item>
-                    <name>queue.block</name>
+                    <name>maillog.blocked</name>
                     <type>0</type>
                     <snmp_community/>
                     <snmp_oid/>
-                    <key>queue.block</key>
+                    <key>maillog.blocked</key>
+                    <delay>30s</delay>
+                    <history>90d</history>
+                    <trends>365d</trends>
+                    <status>0</status>
+                    <value_type>3</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <authtype>0</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description>Checking 'blocked' letters in maillog (SPAM checking)&#13;
+Related user parameter:&#13;
+UserParameter=maillog.blocked,journalctl -u postfix -S &quot;$(date -d &quot;-1 hour&quot; +%Y&quot;-&quot;%m&quot;-&quot;%d&quot; &quot;%T)&quot; | grep  -iw -e  blacklisted -e blocked | wc -l&#13;
+&#13;
+Don't forget to add zabbix user to systemd-journal group:&#13;
+usermod -G systemd-journal zabbix</description>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>Postfix</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                    <preprocessing/>
+                    <jmx_endpoint/>
+                    <master_item/>
+                </item>
+                <item>
+                    <name>queue.blocked</name>
+                    <type>0</type>
+                    <snmp_community/>
+                    <snmp_oid/>
+                    <key>queue.blocked</key>
                     <delay>30s</delay>
                     <history>90d</history>
                     <trends>365d</trends>
@@ -59,11 +112,11 @@ UserParameter=queue.block,postqueue -p | grep -e blocked -e blacklisted | wc -l<
                     <port/>
                     <description>Checking 'blocked' letters in queue (SPAM checking)&#13;
 Related user parameter:&#13;
-UserParameter=queue.block,postqueue -p | grep blocked | wc -l</description>
+UserParameter=queue.blocked,postqueue -p | grep blocked | wc -l</description>
                     <inventory_link>0</inventory_link>
                     <applications>
                         <application>
-                            <name>Postfix_Queue</name>
+                            <name>Postfix</name>
                         </application>
                     </applications>
                     <valuemap/>
@@ -106,7 +159,7 @@ UserParameter=queue.status,postqueue -p | grep -v &quot;^[^0-9A-Z]\|^$&quot; | w
                     <inventory_link>0</inventory_link>
                     <applications>
                         <application>
-                            <name>Postfix_Queue</name>
+                            <name>Postfix</name>
                         </application>
                     </applications>
                     <valuemap/>
@@ -125,10 +178,10 @@ UserParameter=queue.status,postqueue -p | grep -v &quot;^[^0-9A-Z]\|^$&quot; | w
     </templates>
     <triggers>
         <trigger>
-            <expression>{Template Postfix Queue Checking:queue.block.avg(30m)}&gt;0</expression>
+            <expression>{Template Postfix Queue And Log Checking:maillog.blocked.avg(30m)}&gt;0</expression>
             <recovery_mode>0</recovery_mode>
             <recovery_expression/>
-            <name>Mail server  {HOSTNAME} in SPAM list!</name>
+            <name>Mail server  {HOSTNAME} in SPAM list! Please check maillog.</name>
             <correlation_mode>0</correlation_mode>
             <correlation_tag/>
             <url/>
@@ -141,10 +194,26 @@ UserParameter=queue.status,postqueue -p | grep -v &quot;^[^0-9A-Z]\|^$&quot; | w
             <tags/>
         </trigger>
         <trigger>
-            <expression>{Template Postfix Queue Checking:queue.status.avg(30m)}&gt;30</expression>
+            <expression>{Template Postfix Queue And Log Checking:queue.blocked.avg(30m)}&gt;0</expression>
             <recovery_mode>0</recovery_mode>
             <recovery_expression/>
-            <name>Too many letters in queue on mail server {HOSTNAME}</name>
+            <name>Mail server  {HOSTNAME} in SPAM list! Please check postfix queue (postqueue -p).</name>
+            <correlation_mode>0</correlation_mode>
+            <correlation_tag/>
+            <url/>
+            <status>0</status>
+            <priority>4</priority>
+            <description/>
+            <type>0</type>
+            <manual_close>0</manual_close>
+            <dependencies/>
+            <tags/>
+        </trigger>
+        <trigger>
+            <expression>{Template Postfix Queue And Log Checking:queue.status.avg(30m)}&gt;30</expression>
+            <recovery_mode>0</recovery_mode>
+            <recovery_expression/>
+            <name>Too many letters in queue on mail server {HOSTNAME}.  Please check postfix queue (postqueue -p).</name>
             <correlation_mode>0</correlation_mode>
             <correlation_tag/>
             <url/>
