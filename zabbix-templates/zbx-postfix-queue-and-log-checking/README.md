@@ -37,11 +37,11 @@ Installation
 3. Please associate **ZBX-POSTFIX-QUEUE-AND-LOG-SPAM-CHECKING** template to the host.
 
 
-### Requirements
-
--This template was tested for Zabbix 3.4 and higher.
--This template was tested for Posfix 2.10 and higher.
--This template was tested for CentOS 7.X.
+Requirements
+------------
+- This template was tested for Zabbix 3.4 and higher.
+- This template was tested for Posfix 2.10 and higher.
+- This template was tested for CentOS 7.X.
 
 License
 -------
